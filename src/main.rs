@@ -223,9 +223,8 @@ fn branch_slug(text: &str) -> String {
     slug("", text).trim_start_matches('-').to_string()
 }
 
-/// Deterministic branch name for opening `dir` as a worktree of `repo`: the repo root itself
-/// always gets `work`, a subfolder gets its path relative to the repo, slugged. Opening the same
-/// folder again resolves to the same branch, so it reopens instead of piling up worktrees.
+/// Branch name for opening `dir` as a worktree of `repo`: the repo root itself gets `work`, a
+/// subfolder gets its path relative to the repo, slugged. `free_branch` numbers it when taken.
 fn branch_for(repo: &Path, dir: &Path) -> String {
     let rel = dir.strip_prefix(repo).unwrap_or(Path::new(""));
     if rel.as_os_str().is_empty() {
@@ -240,13 +239,43 @@ fn branch_for(repo: &Path, dir: &Path) -> String {
     }
 }
 
-/// The remote's default branch, freshly fetched: `origin/main`.
-fn default_base(clone: &Path) -> String {
-    let base = git(
+/// `name`, or else the first of `name-2`, `name-3`, … that is not `taken`.
+fn first_free(name: &str, taken: impl Fn(&str) -> bool) -> String {
+    std::iter::once(name.to_string())
+        .chain((2..).map(|n| format!("{name}-{n}")))
+        .find(|b| !taken(b))
+        .unwrap_or_default()
+}
+
+/// A branch name for a new worktree of `clone`: neither the branch nor its folder exists yet.
+fn free_branch(clone: &Path, name: &str) -> String {
+    first_free(name, |b| {
+        worktree_path(clone, b).exists()
+            || git(
+                clone,
+                &[
+                    "rev-parse",
+                    "--verify",
+                    "--quiet",
+                    &format!("refs/heads/{b}"),
+                ],
+            )
+            .is_some()
+    })
+}
+
+/// The remote's default branch as last fetched: `origin/main`. No network, so it is instant.
+fn remote_head(clone: &Path) -> String {
+    git(
         clone,
         &["symbolic-ref", "--short", "refs/remotes/origin/HEAD"],
     )
-    .unwrap_or_else(|| "origin/main".into());
+    .unwrap_or_else(|| "origin/main".into())
+}
+
+/// The remote's default branch, freshly fetched: `origin/main`.
+fn default_base(clone: &Path) -> String {
+    let base = remote_head(clone);
     git(
         clone,
         &["fetch", "origin", base.trim_start_matches("origin/")],
@@ -351,16 +380,16 @@ fn open_worktree_full(
     Ok(())
 }
 
-/// Opens (or reopens) a worktree of `repo` for `dir`, branch/workspace/tab all named the same
-/// deterministic way `branch_for` names it, Claude started in it — the same convention Herdr
-/// Overview's Folders panel already uses for `w`.
+/// Creates a new worktree of `repo` for `dir`, branch and workspace named by `branch_for` (numbered
+/// when taken), Claude started in it. Never reopens an existing one, and never waits on the
+/// network: it starts from the default branch as last fetched.
 fn open_as_worktree(repo: &Path, dir: &Path) -> Result<(), String> {
-    let branch = branch_for(repo, dir);
+    let branch = free_branch(repo, &branch_for(repo, dir));
     let tab_label: String = dir
         .file_name()
         .map(|n| n.to_string_lossy().into_owned())
         .unwrap_or_else(|| branch.clone());
-    let base = default_base(repo);
+    let base = remote_head(repo);
     open_worktree_full(repo, &branch, Some(&base), &branch, &tab_label, "")
 }
 
@@ -775,16 +804,19 @@ fn run(terminal: &mut DefaultTerminal) -> std::io::Result<()> {
                             app.ascend();
                         }
                         KeyCode::Enter => app.descend(),
-                        KeyCode::Tab => match app.open(false) {
-                            Some(Ok(())) => return Ok(()),
-                            Some(Err(e)) => app.notice = Some(e),
-                            None => {}
-                        },
-                        KeyCode::BackTab => match app.open(true) {
-                            Some(Ok(())) => return Ok(()),
-                            Some(Err(e)) => app.notice = Some(e),
-                            None => {}
-                        },
+                        KeyCode::Tab | KeyCode::BackTab if app.selected().is_some() => {
+                            let force_tab = key.code == KeyCode::BackTab;
+                            app.notice = Some(if force_tab {
+                                "opening tab…".into()
+                            } else {
+                                "creating worktree…".into()
+                            });
+                            terminal.draw(|f| draw(f, &mut app))?;
+                            match app.open(force_tab) {
+                                Some(Err(e)) => app.notice = Some(e),
+                                _ => return Ok(()),
+                            }
+                        }
                         _ => {}
                     }
                 }
@@ -1060,6 +1092,15 @@ mod tests {
         assert_eq!(
             branch_for(repo, &repo.join("docs").join("setup")),
             "docs-setup"
+        );
+    }
+
+    #[test]
+    fn first_free_numbers_taken_names() {
+        assert_eq!(first_free("work", |_| false), "work");
+        assert_eq!(
+            first_free("work", |b| b == "work" || b == "work-2"),
+            "work-3"
         );
     }
 

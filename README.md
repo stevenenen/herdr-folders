@@ -24,12 +24,12 @@ or a git worktree in one keystroke.
 - **`/`** filters the folders currently shown (every word must match, case-insensitive). Esc
   stops typing but keeps the filter; Esc again clears it; Esc again walks up a level; Esc at
   the root closes the popup.
-- **Tab** opens the selected folder: a git worktree when it (or an ancestor) is a repo, else a
-  plain tab. Branch, worktree folder, workspace and tab are all named the same deterministic
-  way: the repo root itself becomes branch `work`; a subfolder becomes its path relative to the
-  repo, slugged (`docs/setup` → `docs-setup`). Opening the same folder again reopens the same
-  worktree instead of creating another one. Claude is started in a freshly created worktree's
-  pane.
+- **Tab** opens the selected folder: a new git worktree when it (or an ancestor) is a repo, else
+  a plain tab. Every press creates a fresh worktree with Claude started in it, branched from the
+  default branch as last fetched (no network wait). Branch, worktree folder and workspace are
+  named after the folder: the repo root becomes `work`, a subfolder its path relative to the
+  repo, slugged (`docs/setup` → `docs-setup`). A name already in use gets a number: `work-2`,
+  `work-3`.
 - **Shift+Tab** always opens a plain tab at the folder, even inside a git repo — for folders
   you just want to look at (notes, docs) without spinning up a branch.
 - **`u`** opens a centered popup to paste a GitHub issue/pull-request link or an absolute path;
@@ -79,7 +79,7 @@ description = "Folders: walk the tree, open a tab or worktree"
 | `Enter` | Walk into the selected folder |
 | `Backspace` | Walk up one level |
 | `/` | Filter the folders currently shown |
-| `Tab` | Open: a worktree if the folder is (or is inside) a git repo, else a plain tab |
+| `Tab` | Open: a new worktree if the folder is (or is inside) a git repo, else a plain tab |
 | `Shift+Tab` | Open as a plain tab, even inside a git repo |
 | `u` | Paste a GitHub issue/PR link or an absolute path; Enter opens it, Esc cancels |
 | `Esc` | Stop typing, then clear the filter, then walk up a level, then close |
