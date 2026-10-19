@@ -1,0 +1,12 @@
+[package]
+name = "herdr-folders"
+version = "0.1.0"
+edition = "2024"
+description = "Walk a folder tree, recently opened folders pinned to the top, and open a tab or git worktree in one keystroke."
+license = "MIT"
+
+[dependencies]
+ratatui = "0.30.2"
+serde_json = "1"
+toml = "0.8"
+unicode-width = "0.2"

@@ -1,0 +1,24 @@
+id = "stevenenen.herdr-folders"
+name = "Herdr Folders"
+version = "0.1.0"
+description = "Walk a folder tree, recently opened folders pinned to the top, open a tab or git worktree."
+min_herdr_version = "0.7.4"
+platforms = ["macos", "linux"]
+
+[[build]]
+command = ["cargo", "build", "--release"]
+
+[[actions]]
+id = "open"
+title = "Open Folders"
+description = "Browse folders, open a tab or worktree"
+contexts = ["global", "workspace"]
+command = ["sh", "-c", "exec \"${HERDR_BIN_PATH:-herdr}\" plugin pane open --plugin \"$HERDR_PLUGIN_ID\" --entrypoint folders --focus"]
+
+[[panes]]
+id = "folders"
+title = "Folders"
+placement = "popup"
+width = "100%"
+height = "100%"
+command = ["./target/release/herdr-folders"]
