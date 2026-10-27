@@ -997,7 +997,7 @@ fn draw(f: &mut Frame, app: &mut App) {
     let hint = if app.typing {
         "Esc stop typing"
     } else {
-        "j/k move  Tab enter folder  Backspace up  Enter open (worktree if git)  Shift+Tab plain tab  u paste link/path  / filter  Esc back/close"
+        "j/k move  Tab go into folder  Backspace up  Enter open (worktree if git)  Shift+Tab plain tab  u paste link/path  / filter  Esc back/close"
     };
     f.render_widget(
         Paragraph::new(fit(hint, footer.width as usize)).style(Style::new().fg(palette::SUBTEXT)),

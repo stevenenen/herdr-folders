@@ -13,7 +13,7 @@ or a git worktree in one keystroke.
  ⎇ Development
    sharedObsidian
 ──────────────────────────────────────────────────────
- j/k move  Tab enter folder  Backspace up  Enter open (worktree if git)  Shift+Tab plain tab  u paste link/path  / filter  Esc back/close
+ j/k move  Tab go into folder  Backspace up  Enter open (worktree if git)  Shift+Tab plain tab  u paste link/path  / filter  Esc back/close
 ```
 
 - **Recent**, at the top of the root view only, lists folders you've opened before, most
