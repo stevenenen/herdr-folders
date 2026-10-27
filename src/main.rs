@@ -712,7 +712,7 @@ impl App {
     }
 
     /// Resolves a pasted GitHub issue/pull-request link or an absolute path, and opens it: a
-    /// link opens (or reopens) its worktree; a path opens the same way `Tab` would.
+    /// link opens (or reopens) its worktree; a path opens the same way `Enter` would.
     fn open_link(&mut self, raw: &str) -> Result<(), String> {
         if parse_link(raw).is_some() {
             return open_github_link(raw, &self.roots);
@@ -803,8 +803,8 @@ fn run(terminal: &mut DefaultTerminal) -> std::io::Result<()> {
                         KeyCode::Backspace => {
                             app.ascend();
                         }
-                        KeyCode::Enter => app.descend(),
-                        KeyCode::Tab | KeyCode::BackTab if app.selected().is_some() => {
+                        KeyCode::Tab => app.descend(),
+                        KeyCode::Enter | KeyCode::BackTab if app.selected().is_some() => {
                             let force_tab = key.code == KeyCode::BackTab;
                             app.notice = Some(if force_tab {
                                 "opening tab…".into()
@@ -997,7 +997,7 @@ fn draw(f: &mut Frame, app: &mut App) {
     let hint = if app.typing {
         "Esc stop typing"
     } else {
-        "j/k move  Enter enter folder  Backspace up  Tab open (worktree if git)  Shift+Tab plain tab  u paste link/path  / filter  Esc back/close"
+        "j/k move  Tab enter folder  Backspace up  Enter open (worktree if git)  Shift+Tab plain tab  u paste link/path  / filter  Esc back/close"
     };
     f.render_widget(
         Paragraph::new(fit(hint, footer.width as usize)).style(Style::new().fg(palette::SUBTEXT)),

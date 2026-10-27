@@ -13,18 +13,18 @@ or a git worktree in one keystroke.
  ⎇ Development
    sharedObsidian
 ──────────────────────────────────────────────────────
- j/k move  Enter enter folder  Backspace up  Tab open (worktree if git)  Shift+Tab plain tab  u paste link/path  / filter  Esc back/close
+ j/k move  Tab enter folder  Backspace up  Enter open (worktree if git)  Shift+Tab plain tab  u paste link/path  / filter  Esc back/close
 ```
 
 - **Recent**, at the top of the root view only, lists folders you've opened before, most
   recently first — the chance you want the same one again is high.
 - **Browse** lists each configured root. `⎇` marks a folder that is itself a git repo.
-- **Enter** walks into the selected folder, showing its subfolders. **Backspace** walks back
+- **Tab** walks into the selected folder, showing its subfolders. **Backspace** walks back
   up a level.
 - **`/`** filters the folders currently shown (every word must match, case-insensitive). Esc
   stops typing but keeps the filter; Esc again clears it; Esc again walks up a level; Esc at
   the root closes the popup.
-- **Tab** opens the selected folder: a new git worktree when it (or an ancestor) is a repo, else
+- **Enter** opens the selected folder: a new git worktree when it (or an ancestor) is a repo, else
   a plain tab. Every press creates a fresh worktree with Claude started in it, branched from the
   default branch as last fetched (no network wait). Branch, worktree folder and workspace are
   named after the folder: the repo root becomes `work`, a subfolder its path relative to the
@@ -40,7 +40,7 @@ or a git worktree in one keystroke.
     Pasting the same link again reopens that worktree. Needs `gh`, signed in to an account
     that can see the repo.
   - an absolute path (a folder, or a file — its containing folder is used) opens exactly like
-    `Tab` would on that folder: a worktree if it's inside a git repo, else a plain tab.
+    `Enter` would on that folder: a worktree if it's inside a git repo, else a plain tab.
 
 ## Install
 
@@ -56,7 +56,7 @@ to put it. Create `config.toml` in the plugin's config directory:
 ```sh
 cat > "$(herdr plugin config-dir stevenenen.herdr-folders)/config.toml" <<'TOML'
 [dirs]
-roots = ["~/Development"]   # each root is itself an entry; Enter walks into it
+roots = ["~/Development"]   # each root is itself an entry; Tab walks into it
 TOML
 ```
 
@@ -76,10 +76,10 @@ description = "Folders: walk the tree, open a tab or worktree"
 | --- | --- |
 | `j` / `k`, `↑` / `↓` | Move |
 | `g` / `G`, `Home` / `End` | Top / bottom |
-| `Enter` | Walk into the selected folder |
+| `Tab` | Walk into the selected folder |
 | `Backspace` | Walk up one level |
 | `/` | Filter the folders currently shown |
-| `Tab` | Open: a new worktree if the folder is (or is inside) a git repo, else a plain tab |
+| `Enter` | Open: a new worktree if the folder is (or is inside) a git repo, else a plain tab |
 | `Shift+Tab` | Open as a plain tab, even inside a git repo |
 | `u` | Paste a GitHub issue/PR link or an absolute path; Enter opens it, Esc cancels |
 | `Esc` | Stop typing, then clear the filter, then walk up a level, then close |
