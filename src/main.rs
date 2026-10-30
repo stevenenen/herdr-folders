@@ -955,25 +955,42 @@ fn draw(f: &mut Frame, app: &mut App) {
 
     let rows = app.rows();
     let width = list_area.width.saturating_sub(4) as usize;
+    // At the root, a name column (as wide as the longest name, capped) comes before the path.
+    let name_width = if app.stack.is_empty() {
+        rows.iter()
+            .filter_map(|r| match r {
+                Row::Entry(p) => Some(p.file_name_str().width()),
+                Row::Header(_) => None,
+            })
+            .max()
+            .unwrap_or(0)
+            .min(width / 3)
+    } else {
+        0
+    };
     let items: Vec<ListItem> = rows
         .iter()
         .map(|r| match r {
             Row::Header(text) => ListItem::new(header(&fit_tail(text, width))),
             Row::Entry(p) => {
-                let repo = is_repo_root(p);
-                let label = if app.stack.is_empty() {
-                    display_path(p)
+                let icon = if is_repo_root(p) { "⎇ " } else { "  " };
+                let mut spans = vec![Span::styled(icon, Style::new().fg(palette::MAUVE))];
+                if app.stack.is_empty() {
+                    spans.push(Span::styled(
+                        fit(&p.file_name_str(), name_width + 2),
+                        Style::new().fg(palette::TEXT).bold(),
+                    ));
+                    spans.push(Span::raw(fit_tail(
+                        &display_path(p),
+                        width.saturating_sub(name_width + 4),
+                    )));
                 } else {
-                    p.file_name_str()
-                };
-                let icon = if repo { "⎇ " } else { "  " };
-                ListItem::new(Line::from(vec![
-                    Span::styled(icon, Style::new().fg(palette::MAUVE)),
-                    Span::styled(
-                        fit_tail(&label, width.saturating_sub(2)),
+                    spans.push(Span::styled(
+                        fit_tail(&p.file_name_str(), width.saturating_sub(2)),
                         Style::new().fg(palette::TEXT),
-                    ),
-                ]))
+                    ));
+                }
+                ListItem::new(Line::from(spans))
             }
         })
         .collect();
