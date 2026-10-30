@@ -677,10 +677,13 @@ impl App {
         }
     }
 
-    /// Pops one level. Returns false when already at the virtual root.
+    /// Pops one level, reselecting the folder just left. Returns false when already at the
+    /// virtual root.
     fn ascend(&mut self) -> bool {
-        if self.stack.pop().is_some() {
+        if let Some(left) = self.stack.pop() {
             self.reset_selection();
+            let i = self.entries().iter().position(|p| *p == left);
+            self.list.select(Some(i.unwrap_or(0)));
             true
         } else {
             false
