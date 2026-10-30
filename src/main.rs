@@ -110,7 +110,7 @@ fn config_roots(config: &str) -> Vec<PathBuf> {
 struct Recent(HashMap<String, u64>);
 
 const RECENT_CAP: usize = 200;
-const RECENT_SHOWN: usize = 12;
+const RECENT_SHOWN: usize = 25;
 
 impl Recent {
     fn path() -> Option<PathBuf> {

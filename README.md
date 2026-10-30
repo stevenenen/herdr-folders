@@ -87,7 +87,7 @@ description = "Folders: walk the tree, open a tab or worktree"
 ## State
 
 Recently opened folders live in `$HERDR_PLUGIN_STATE_DIR/recent.json`, capped at 200 entries;
-only the 12 most recent (and still existing) show in the popup.
+only the 25 most recent (and still existing) show in the popup.
 
 ## Development
 
