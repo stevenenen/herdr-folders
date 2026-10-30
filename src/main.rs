@@ -704,14 +704,12 @@ impl App {
         false
     }
 
-    /// Opens the selected folder, recording it as recently used on success.
+    /// Opens the selected folder, recording it as recently used first: switching focus can
+    /// close this popup before the open call returns.
     fn open(&mut self, force_tab: bool) -> Option<Result<(), String>> {
         let dir = self.selected()?;
-        let result = open_folder(&dir, force_tab);
-        if result.is_ok() {
-            self.recent.touch(&dir);
-        }
-        Some(result)
+        self.recent.touch(&dir);
+        Some(open_folder(&dir, force_tab))
     }
 
     /// Resolves a pasted GitHub issue/pull-request link or an absolute path, and opens it: a
@@ -721,11 +719,8 @@ impl App {
             return open_github_link(raw, &self.roots);
         }
         let dir = resolve_path(raw)?;
-        let result = open_folder(&dir, false);
-        if result.is_ok() {
-            self.recent.touch(&dir);
-        }
-        result
+        self.recent.touch(&dir);
+        open_folder(&dir, false)
     }
 }
 
