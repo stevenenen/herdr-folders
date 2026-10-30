@@ -832,15 +832,19 @@ fn run(terminal: &mut DefaultTerminal) -> std::io::Result<()> {
 }
 
 /// Tokyo Night, the same dark palette the other Herdr plugins use.
+/// Terminal colors, not fixed ones: background and text are left to Herdr, which fills them
+/// from its theme, and the rest are the standard named colors.
 mod palette {
     use ratatui::style::Color;
-    pub const BG: Color = Color::Rgb(26, 27, 38);
-    pub const SELECTED: Color = Color::Rgb(65, 72, 104);
-    pub const TEXT: Color = Color::Rgb(192, 202, 245);
-    pub const SUBTEXT: Color = Color::Rgb(169, 177, 214);
-    pub const ACCENT: Color = Color::Rgb(122, 162, 247);
-    pub const RED: Color = Color::Rgb(247, 118, 142);
-    pub const MAUVE: Color = Color::Rgb(187, 154, 247);
+    pub const BG: Color = Color::Reset;
+    /// Text on a colored pill.
+    pub const INK: Color = Color::Black;
+    pub const SELECTED: Color = Color::DarkGray;
+    pub const TEXT: Color = Color::Reset;
+    pub const SUBTEXT: Color = Color::Gray;
+    pub const ACCENT: Color = Color::Blue;
+    pub const RED: Color = Color::Red;
+    pub const MAUVE: Color = Color::Magenta;
 }
 
 /// Truncates to `width` columns with an ellipsis (keeping the start), then pads to exactly
@@ -889,7 +893,7 @@ fn fit_tail(text: &str, width: usize) -> String {
 fn header(text: &str) -> Line<'static> {
     Line::from(Span::styled(
         format!(" {text} "),
-        Style::new().fg(palette::BG).bg(palette::ACCENT).bold(),
+        Style::new().fg(palette::INK).bg(palette::ACCENT).bold(),
     ))
 }
 
